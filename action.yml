@@ -1,0 +1,103 @@
+name: 'Update README and Create PR'
+description: 'Runs a Python script to update README.md and creates a PR if changes are detected'
+author: 'pawamoy'
+
+inputs:
+  logo-data-source:
+    description: 'URL or local file path to JSON file containing logo data for sponsors'
+    required: false
+    default: ''
+
+  file-path:
+    description: 'Path to the file to update'
+    required: false
+    default: 'README.md'
+
+  marker-line:
+    description: 'Marker line in the file where sponsors content should be inserted'
+    required: false
+    default: '## Sponsors'
+
+  branch-name:
+    description: 'Name of the branch to create for the PR'
+    required: false
+    default: 'update-readme-sponsors'
+
+  commit-message:
+    description: 'Commit message for the changes'
+    required: false
+    default: 'chore: Update README.md'
+
+  pr-title:
+    description: 'Title for the pull request'
+    required: false
+    default: 'Update README.md'
+
+  pr-body:
+    description: 'Body text for the pull request'
+    required: false
+    default: 'Automated README update'
+
+  base-branch:
+    description: 'Base branch to target for the PR'
+    required: false
+    default: 'main'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install uv
+      uses: astral-sh/setup-uv@v7
+
+    - name: Update specified file
+      shell: bash
+      env:
+        LOGO_DATA_SOURCE: ${{ inputs.logo-data-source }}
+        FILE_PATH: ${{ inputs.file-path }}
+        MARKER_LINE: ${{ inputs.marker-line }}
+      run: |
+        uv run ${{ github.action_path }}/scripts/update_readme.py
+
+    - name: Check for changes
+      id: check-changes
+      shell: bash
+      run: |
+        if git diff --quiet ${{ inputs.file-path }}; then
+          echo "No changes detected in ${{ inputs.file-path }}"
+          echo "changed=false" >> $GITHUB_OUTPUT
+        else
+          echo "Changes detected in ${{ inputs.file-path }}"
+          echo "changed=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create PR if changes detected
+      if: steps.check-changes.outputs.changed == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        # Configure git
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Create and switch to new branch
+        git checkout -b ${{ inputs.branch-name }}
+
+        # Stage and commit changes
+        git add ${{ inputs.file-path }}
+        git commit -m "${{ inputs.commit-message }}"
+
+        # Push the branch
+        git push origin ${{ inputs.branch-name }} --force
+
+        # Create PR using gh CLI
+        gh pr create \
+          --base ${{ inputs.base-branch }} \
+          --head ${{ inputs.branch-name }} \
+          --title "${{ inputs.pr-title }}" \
+          --body "${{ inputs.pr-body }}" \
+          || echo "PR may already exist"
+
+branding:
+  icon: 'file-text'
+  color: 'blue'
