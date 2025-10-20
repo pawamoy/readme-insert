@@ -32,6 +32,8 @@ jobs:
 
       - name: Update README and create PR
         uses: pawamoy/readme-sponsors@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 ```
 
 ## Inputs
@@ -59,6 +61,8 @@ jobs:
 
       - name: Update README and create PR
         uses: pawamoy/readme-sponsors@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
             logo-data-source: https://pawamoy.github.io/sponsors-logo.json
             file-path: SPONSORS.md
@@ -71,6 +75,19 @@ jobs:
 ```
 
 ## Requirements
+
+### GitHub Token
+
+You **must** pass your GitHub token as the `GITHUB_TOKEN` environment variable to fetch sponsorships:
+
+```yaml
+- name: Update README and create PR
+  uses: pawamoy/readme-sponsors@main
+  env:
+    GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+```
+
+The default `github.token` provided by GitHub Actions is not sufficient for fetching sponsorships. You need to create a Personal Access Token (PAT) with the appropriate scopes and store it as a secret. The required scopes are `admin:org` and `read:user`.
 
 ### Permissions
 
