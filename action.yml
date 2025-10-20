@@ -55,7 +55,6 @@ runs:
         LOGO_DATA_SOURCE: ${{ inputs.logo-data-source }}
         FILE_PATH: ${{ inputs.file-path }}
         MARKER_LINE: ${{ inputs.marker-line }}
-        GITHUB_TOKEN: ${{ github.token }}
       run: |
         uv run -s ${{ github.action_path }}/scripts/update_readme.py
 
