@@ -208,3 +208,5 @@ ISC
 ## Contributing
 
 Contributions welcome! Feel free to open issues or pull requests.
+
+## Sponsors
