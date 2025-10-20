@@ -3,7 +3,7 @@ description: 'Fetches sponsors markup from a URL and updates a file, creating a 
 author: 'pawamoy'
 
 inputs:
-  sponsors-url:
+  markup-url:
     description: 'URL to fetch the sponsors markup content from'
     required: true
 
@@ -25,17 +25,17 @@ inputs:
   commit-message:
     description: 'Commit message for the changes'
     required: false
-    default: 'chore: Update README.md'
+    default: 'chore: Update sponsors'
 
   pr-title:
     description: 'Title for the pull request'
     required: false
-    default: 'Update README.md'
+    default: 'chore: Update sponsors'
 
   pr-body:
     description: 'Body text for the pull request'
     required: false
-    default: 'Automated README update'
+    default: 'Sponsors updated automatically.'
 
   base-branch:
     description: 'Base branch to target for the PR'
@@ -48,7 +48,7 @@ runs:
     - name: Update specified file
       shell: bash
       env:
-        SPONSORS_URL: ${{ inputs.sponsors-url }}
+        MARKUP_URL: ${{ inputs.markup-url }}
         FILE_PATH: ${{ inputs.file-path }}
         MARKER_LINE: ${{ inputs.marker-line }}
       run: python3 ${{ github.action_path }}/scripts/update_readme.py

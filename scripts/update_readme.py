@@ -3,13 +3,13 @@ import sys
 from pathlib import Path
 from urllib.request import urlopen
 
-SPONSORS_URL = os.getenv("SPONSORS_URL", "")
+MARKUP_URL = os.getenv("MARKUP_URL", "")
 FILE_PATH = os.getenv("FILE_PATH", "README.md")
 MARKER_LINE = os.getenv("MARKER_LINE", "## Sponsors")
 
 
 def fetch_sponsors_markup() -> str:
-    with urlopen(SPONSORS_URL) as response:
+    with urlopen(MARKUP_URL) as response:
         return response.read().decode("utf8")
 
 
@@ -39,7 +39,7 @@ def update_file() -> None:
         return
 
     filepath.write_text("".join(output_lines), encoding="utf-8")
-    print(f"✓ Updated {FILE_PATH} with sponsors from {SPONSORS_URL}")
+    print(f"✓ Updated {FILE_PATH} with sponsors from {MARKUP_URL}")
 
 
 def main() -> int:
