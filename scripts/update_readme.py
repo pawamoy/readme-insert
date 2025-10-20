@@ -4,15 +4,19 @@
 #   "insiders",
 # ]
 # ///
-from itertools import groupby
 import json
+import logging
 import os
 from contextlib import nullcontext
+from itertools import groupby
 from pathlib import Path
 from typing import Iterator
 from urllib.request import urlopen
 
 from insiders import GitHub, Polar, Sponsors, Sponsorship
+
+# Hide DEBUG logs from insiders.
+logging.basicConfig(level=logging.INFO)
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 POLAR_TOKEN = os.getenv("POLAR_TOKEN")
@@ -62,7 +66,7 @@ def html(sponsorship: Sponsorship, logo_data: dict) -> str:
         f'<source media="(prefers-color-scheme: light)" srcset="{image[0]}">'
         f'<source media="(prefers-color-scheme: dark)" srcset="{image[1]}">'
         f'<img alt="{name}" src="{image[0]}" style="height: {height}px; {style}"></picture>'
-        f'</a>'
+        f"</a>"
     )
 
 
@@ -82,7 +86,10 @@ def list_sponsors() -> Iterator[str]:
         return
 
     # Sort (sponsorship, tier) by tier descending, then by sponsorship creation date ascending.
-    sorted_sponsorships = sorted(((sp, get_tier(sp)) for sp in sponsors.sponsorships), key=lambda x: (-x[1], x[0].created))
+    sorted_sponsorships = sorted(
+        ((sp, get_tier(sp)) for sp in sponsors.sponsorships),
+        key=lambda x: (-x[1], x[0].created),
+    )
 
     # Group by tier.
     private = 0
@@ -105,7 +112,7 @@ def list_sponsors() -> Iterator[str]:
                 private += 1
                 continue
             yield html(sponsorship, logo_data) + newline
-        yield '\n</p></div>'
+        yield "\n</p></div>"
     if private:
         yield f"\n\n*And {private} more private sponsor(s).*"
 
