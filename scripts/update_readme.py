@@ -5,18 +5,18 @@
 # ]
 # ///
 import json
-import logging
 import os
 from contextlib import nullcontext
 from itertools import groupby
 from pathlib import Path
 from typing import Iterator
 from urllib.request import urlopen
+from loguru import logger
 
 from insiders import GitHub, Polar, Sponsors, Sponsorship
 
 # Hide DEBUG logs from insiders.
-logging.basicConfig(level=logging.INFO)
+logger.disable("insiders")
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 POLAR_TOKEN = os.getenv("POLAR_TOKEN")
