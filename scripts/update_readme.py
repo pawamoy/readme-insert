@@ -78,12 +78,15 @@ def list_sponsors() -> Iterator[str]:
         if polar:
             sponsors.merge(polar.get_sponsors(exclude_private=False))
 
+    if not sponsors.sponsorships:
+        return
+
     # Sort (sponsorship, tier) by tier descending, then by sponsorship creation date ascending.
     sorted_sponsorships = sorted(((sp, get_tier(sp)) for sp in sponsors.sponsorships), key=lambda x: (-x[1], x[0].created))
 
     # Group by tier.
     private = 0
-    yield '<div id="premium-sponsors" style="text-align: center;">'
+    yield '\n<div id="premium-sponsors" style="text-align: center;">'
     for tier, group in groupby(sorted_sponsorships, key=lambda x: x[1]):
         newline = "\n"
         if tier == 1000:
@@ -111,7 +114,7 @@ def yield_updated_readme(filepath: Path, marker_line: str) -> Iterator[str]:
     with filepath.open("r", encoding="utf8") as file:
         for line in file:
             yield line
-            if line == marker_line:
+            if line.rstrip() == marker_line:
                 yield from list_sponsors()
                 break
 
