@@ -147,3 +147,6 @@ The action uses `github.token` (automatically provided by GitHub Actions) for au
    - Commits the changes
    - Pushes the branch
    - Creates a PR using `gh pr create`
+
+
+## Sponsors
