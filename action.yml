@@ -1,12 +1,11 @@
-name: 'Update README and Create PR'
-description: 'Runs a Python script to update README.md and creates a PR if changes are detected'
+name: 'Update README Sponsors'
+description: 'Fetches sponsors markup from a URL and updates a file, creating a PR if changes are detected'
 author: 'pawamoy'
 
 inputs:
-  logo-data-source:
-    description: 'URL or local file path to JSON file containing logo data for sponsors'
-    required: false
-    default: ''
+  sponsors-url:
+    description: 'URL to fetch the sponsors markup content from'
+    required: true
 
   file-path:
     description: 'Path to the file to update'
@@ -46,16 +45,13 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Install uv
-      uses: astral-sh/setup-uv@v7
-
     - name: Update specified file
       shell: bash
       env:
-        LOGO_DATA_SOURCE: ${{ inputs.logo-data-source }}
+        SPONSORS_URL: ${{ inputs.sponsors-url }}
         FILE_PATH: ${{ inputs.file-path }}
         MARKER_LINE: ${{ inputs.marker-line }}
-      run: uv run -s ${{ github.action_path }}/scripts/update_readme.py
+      run: python3 ${{ github.action_path }}/scripts/update_readme.py
 
     - name: Check for changes
       id: check-changes
