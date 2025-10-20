@@ -99,7 +99,9 @@ permissions:
   pull-requests: write   # To create PRs
 ```
 
-### 2. Marker Line in File
+You must also allow the creation of PRs from GitHub actions in your repository settings, at https://github.com/username/repo/settings/actions.
+
+### 3. Marker Line in File
 
 Your target file must contain the marker line **at the end of the file**. We don't currently support inserting contents in the middle of a file. The action only rewrites contents from the marker line up to the end of the file.
 
