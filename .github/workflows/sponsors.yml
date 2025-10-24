@@ -17,7 +17,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Update README and create PR
-      uses: pawamoy/readme-sponsors@main
+      uses: pawamoy/readme-insert@main
       with:
         markup-url: https://pawamoy.github.io/sponsors.txt
         commit-message: "chore: Update sponsors"
