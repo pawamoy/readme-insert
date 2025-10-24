@@ -23,3 +23,5 @@ jobs:
         commit-message: "chore: Update sponsors"
         pr-title: "chore: Update sponsors"
         pr-body: "Sponsors section updated automatically."
+        start-marker: "<!-- SPONSORS:START -->"
+        end-marker: "<!-- SPONSORS:END -->"

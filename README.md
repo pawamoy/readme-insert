@@ -236,5 +236,5 @@ Contributions welcome! Feel free to open issues or pull requests.
 
 ## Sponsors
 
-<!-- start-insert -->
-<!-- end-insert -->
+<!-- SPONSORS:START -->
+<!-- SPONSORS:END -->
