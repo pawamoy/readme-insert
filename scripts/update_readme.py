@@ -5,7 +5,8 @@ from urllib.request import urlopen
 
 MARKUP_URL = os.getenv("MARKUP_URL", "")
 FILE_PATH = os.getenv("FILE_PATH", "README.md")
-MARKER_LINE = os.getenv("MARKER_LINE", "## Sponsors")
+START_MARKER = os.getenv("START_MARKER", "<!-- start-insert -->")
+END_MARKER = os.getenv("END_MARKER", "<!-- end-insert -->")
 
 
 def fetch_sponsors_markup() -> str:
@@ -24,22 +25,35 @@ def update_file() -> None:
     content = filepath.read_text(encoding="utf8")
     lines = content.splitlines(keepends=True)
 
-    # Find marker line and insert sponsors markup after it
+    # Find start and end marker lines and replace content between them
     output_lines = []
-    found_marker = False
+    inside_markers = False
+    found_start = False
+    found_end = False
 
     for line in lines:
-        output_lines.append(line)
-        if line.rstrip() == MARKER_LINE and not found_marker:
-            output_lines.append("\n" + sponsors_markup + "\n")
-            found_marker = True
+        if line.rstrip() == START_MARKER:
+            output_lines.append(line)
+            output_lines.append(sponsors_markup + "\n")
+            inside_markers = True
+            found_start = True
+        elif line.rstrip() == END_MARKER:
+            output_lines.append(line)
+            inside_markers = False
+            found_end = True
+        elif not inside_markers:
+            output_lines.append(line)
 
-    if not found_marker:
-        print(f"Warning: Marker line '{MARKER_LINE}' not found in {FILE_PATH}", file=sys.stderr)
+    if not found_start:
+        print(f"Error: Start marker '{START_MARKER}' not found in {FILE_PATH}", file=sys.stderr)
+        return
+
+    if not found_end:
+        print(f"Error: End marker '{END_MARKER}' not found in {FILE_PATH}", file=sys.stderr)
         return
 
     filepath.write_text("".join(output_lines), encoding="utf-8")
-    print(f"✓ Updated {FILE_PATH} with sponsors from {MARKUP_URL}")
+    print(f"✓ Updated {FILE_PATH} with markup from {MARKUP_URL}")
 
 
 def main() -> int:

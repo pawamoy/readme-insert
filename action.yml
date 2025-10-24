@@ -1,5 +1,5 @@
-name: 'Update README Sponsors'
-description: 'Fetches sponsors markup from a URL and updates a file, creating a PR if changes are detected'
+name: 'README Insert'
+description: 'Fetches markup from a URL and updates a file, creating a PR if changes are detected'
 author: 'pawamoy'
 
 inputs:
@@ -12,30 +12,35 @@ inputs:
     required: false
     default: 'README.md'
 
-  marker-line:
-    description: 'Marker line in the file where sponsors content should be inserted'
+  start-marker:
+    description: 'Start marker line in the file (content will be inserted after this)'
     required: false
-    default: '## Sponsors'
+    default: '<!-- start-insert -->'
+
+  end-marker:
+    description: 'End marker line in the file (content will be inserted before this)'
+    required: false
+    default: '<!-- end-insert -->'
 
   branch-name:
     description: 'Name of the branch to create for the PR'
     required: false
-    default: 'update-readme-sponsors'
+    default: 'update-readme'
 
   commit-message:
     description: 'Commit message for the changes'
     required: false
-    default: 'chore: Update sponsors'
+    default: 'chore: Update docs'
 
   pr-title:
     description: 'Title for the pull request'
     required: false
-    default: 'chore: Update sponsors'
+    default: 'chore: Update docs'
 
   pr-body:
     description: 'Body text for the pull request'
     required: false
-    default: 'Sponsors updated automatically.'
+    default: 'Docs updated automatically.'
 
   base-branch:
     description: 'Base branch to target for the PR'
@@ -50,7 +55,8 @@ runs:
       env:
         MARKUP_URL: ${{ inputs.markup-url }}
         FILE_PATH: ${{ inputs.file-path }}
-        MARKER_LINE: ${{ inputs.marker-line }}
+        START_MARKER: ${{ inputs.start-marker }}
+        END_MARKER: ${{ inputs.end-marker }}
       run: python3 ${{ github.action_path }}/scripts/update_readme.py
 
     - name: Check for changes

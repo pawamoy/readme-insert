@@ -1,6 +1,6 @@
-# README Sponsors
+# README Insert
 
-A GitHub Action that fetches sponsors markup from a URL and inserts it into a file, automatically creating a pull request when changes are detected.
+A GitHub Action that fetches markup from a URL and inserts it into a file, automatically creating a pull request when changes are detected.
 
 ## Features
 
@@ -14,10 +14,10 @@ A GitHub Action that fetches sponsors markup from a URL and inserts it into a fi
 
 ### Basic Example
 
-Add this workflow to your repository (e.g., `.github/workflows/update-sponsors.yml`):
+Add this workflow to your repository (e.g., `.github/workflows/update-readme.yml`):
 
 ```yaml
-name: Update Sponsors
+name: Update README
 
 on:
   schedule:
@@ -29,15 +29,15 @@ permissions:
   pull-requests: write
 
 jobs:
-  update-sponsors:
+  update-readme:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Update sponsors
-        uses: pawamoy/readme-sponsors@main
+      - name: Update readme
+        uses: pawamoy/readme-insert@main
         with:
-          markup-url: 'https://your-domain.com/sponsors.html'
+          markup-url: 'https://your-domain.com/content.html'
 ```
 
 ### Advanced Example
@@ -46,23 +46,24 @@ Customize all options:
 
 ```yaml
 jobs:
-  update-sponsors:
+  update-content:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Update SPONSORS.md
-        uses: pawamoy/readme-sponsors@main
+      - name: Update custom file
+        uses: pawamoy/readme-insert@main
         with:
-          markup-url: 'https://example.com/sponsors-fragment.html'
-          file-path: 'SPONSORS.md'
-          marker-line: '<!-- insert-sponsors -->'
-          branch-name: 'automated/update-sponsors'
+          markup-url: 'https://example.com/content-fragment.html'
+          file-path: 'CUSTOM.md'
+          start-marker: '<!-- content-start -->'
+          end-marker: '<!-- content-end -->'
+          branch-name: 'automated/update-content'
           base-branch: 'main'
-          commit-message: 'chore: Update sponsors list'
-          pr-title: '🎉 Update Sponsors'
+          commit-message: 'chore: Update content'
+          pr-title: '🎉 Update Content'
           pr-body: |
-            Automated sponsors list update.
+            Automated content update.
 
             Please review and merge if everything looks correct.
 ```
@@ -71,13 +72,14 @@ jobs:
 
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
-| `markup-url` | URL to fetch the sponsors markup content from | ✅ Yes | - |
+| `markup-url` | URL to fetch the markup content from | ✅ Yes | - |
 | `file-path` | Path to the file to update | No | `README.md` |
-| `marker-line` | Marker line in the file where sponsors content will be inserted | No | `## Sponsors` |
-| `branch-name` | Name of the branch to create for the PR | No | `update-readme-sponsors` |
-| `commit-message` | Commit message for the changes | No | `chore: Update sponsors` |
-| `pr-title` | Title for the pull request | No | `chore: Update sponsors` |
-| `pr-body` | Body text for the pull request | No | `Sponsors updated automatically.` |
+| `start-marker` | Start marker line in the file (content will be inserted after this) | No | `<!-- start-insert -->` |
+| `end-marker` | End marker line in the file (content will be inserted before this) | No | `<!-- end-insert -->` |
+| `branch-name` | Name of the branch to create for the PR | No | `update-readme` |
+| `commit-message` | Commit message for the changes | No | `chore: Update docs` |
+| `pr-title` | Title for the pull request | No | `chore: Update docs` |
+| `pr-body` | Body text for the pull request | No | `Docs updated automatically.` |
 | `base-branch` | Base branch to target for the PR | No | `main` |
 
 ## How It Works
@@ -101,9 +103,9 @@ permissions:
 
 You must also allow the creation of PRs from GitHub actions in your repository settings, at https://github.com/username/repo/settings/actions.
 
-### 3. Marker Line in File
+### 2. Marker Lines in File
 
-Your target file must contain the marker line **at the end of the file**. We don't currently support inserting contents in the middle of a file. The action only rewrites contents from the marker line up to the end of the file.
+Your target file must contain both the start and end marker lines. The content between these markers will be replaced with the fetched markup on each run, while the markers themselves are preserved.
 
 **Example `README.md`:**
 
@@ -112,7 +114,14 @@ Your target file must contain the marker line **at the end of the file**. We don
 
 Description of your project here.
 
-## Sponsors
+## Dynamic Content
+
+<!-- start-insert -->
+<!-- end-insert -->
+
+## Installation
+
+More content here...
 ```
 
 After the action runs, it becomes:
@@ -122,10 +131,22 @@ After the action runs, it becomes:
 
 Description of your project here.
 
-## Sponsors
+## Dynamic Content
 
-<div>Your sponsors markup here</div>
+<!-- start-insert -->
+<div>Your dynamic content here</div>
+<!-- end-insert -->
+
+## Installation
+
+More content here...
 ```
+
+**Key points:**
+- Both markers must be present in the file
+- Content between the markers is completely replaced on each update
+- The markers themselves are preserved, allowing subsequent updates
+- You can place the markers anywhere in the file, not just at the end
 
 ## Markup Format
 
@@ -151,12 +172,12 @@ The URL you provide should return plain HTML or Markdown. The action doesn't car
 - [Sponsor 2](https://sponsor2.com) - Great supporter
 ```
 
-## Generating Sponsors Content
+## Generating Content
 
-You can generate the sponsors markup however you prefer:
+You can generate the markup however you prefer:
 
 - **Static file**: Host on GitHub Pages, GitLab Pages, etc.
-- **API endpoint**: Build a serverless function that queries GitHub Sponsors API
+- **API endpoint**: Build a serverless function that queries an API
 - **Separate workflow**: Use another action to generate and host the file
 - **External service**: Use a third-party service
 
@@ -167,9 +188,10 @@ The action simply fetches from the URL. You control how that content is created.
 Test the script locally:
 
 ```bash
-export MARKUP_URL="https://your-domain.com/sponsors.html"
+export MARKUP_URL="https://your-domain.com/content.html"
 export FILE_PATH="README.md"
-export MARKER_LINE="## Sponsors"
+export START_MARKER="<!-- start-insert -->"
+export END_MARKER="<!-- end-insert -->"
 
 python3 scripts/update_readme.py
 ```
@@ -182,11 +204,12 @@ git diff README.md
 
 ## Troubleshooting
 
-### Marker line not found
+### Marker not found
 
-**Error:** `Warning: Marker line '## Sponsors' not found in README.md`
+**Error:** `Error: Start marker '<!-- start-insert -->' not found in README.md`
+**Error:** `Error: End marker '<!-- end-insert -->' not found in README.md`
 
-**Solution:** Ensure your file contains the exact marker line (case-sensitive).
+**Solution:** Ensure your file contains both exact marker lines (case-sensitive).
 
 ### URL fetch failed
 
@@ -213,4 +236,5 @@ Contributions welcome! Feel free to open issues or pull requests.
 
 ## Sponsors
 
-<!-- sponsors -->
+<!-- start-insert -->
+<!-- end-insert -->
